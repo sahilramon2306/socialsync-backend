@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const axios = require('axios');
 const hotelModel = require('../model/hotel');
 const userHotelMappingModle = require("../model/userHotelMapping");
 const responseLib = require("../libs/responseLib");
@@ -29,13 +30,11 @@ const addHotel = async (req, res) => {
 const bookHotel = async (req, res) => {
     try {
       const {userId,hotelId,checkIn,checkOut,guests} = req.body;
-      console.log("req body====>",req.body);
       const hotel = await hotelModel.findOne({ hotelId,isAvailable: true });
-      console.log("hotel ===>",hotel);
       let message;
       let data;
       let bookingId = "";
-      if (!checksLib.isEmpty(hotel)) {
+      if (!checkLib.isEmpty(hotel)) {
         hotel.isAvailable = false;
         await hotel.save();
         bookingId = common.generateRandomId();
@@ -68,16 +67,23 @@ const bookHotel = async (req, res) => {
 //get all the available hotels
 const getAvailableHotels = async (req, res) => {
   try {
-      const hotels = await hotelModel.find({ isAvailable: true }).select({ _id: 0, hotelId: 1, hotelName: 1, rating: 1, price: 1, isAvailable: 1 });
-      console.log("hotel ===>", hotels);
-      const message = hotels.length > 0 ? "Available hotels are following" : "No hotel available";
-      const apiResponse = { success: true, message, hotels };
-      res.status(200).send(apiResponse);
+    const token = req.headers.token;
+    console.log(token) 
+    const response = await axios.get('https://my-blog-sntj.onrender.com/get-hotel', {  //available hotel list getting from cloud server,here we connect local to cloude server
+      headers: {
+        'token': token 
+      }
+    });
+    const hotels = response.data.hotels; 
+    const message = hotels.length > 0 ? "Available hotels are following" : "No hotel available";
+    const apiResponse = { success: true, message, hotels };
+    res.status(200).send(apiResponse);
   } catch (error) {
-      const apiResponse = responseLib.generate(false, error.message, {});
-      res.status(500).send(apiResponse);
+    const apiResponse = responseLib.generate(false, error.message, {}); // Assuming responseLib is defined elsewhere
+    res.status(500).send(apiResponse);
   }
 }
+
 
 
 module.exports = {
