@@ -36,7 +36,5 @@ const verifyClaimWithoutSecret=(token)=>{
 
 module.exports={
     generateToken:generateToken,
-    resetToken:resetToken,
-    verifyClaim:verifyClaim,
     verifyClaimWithoutSecret:verifyClaimWithoutSecret
 }

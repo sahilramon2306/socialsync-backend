@@ -1,17 +1,16 @@
 const mongoose = require("mongoose");
-const userModerl = require('../model/user');
+const userModel = require('../model/user');
 const tokenLib = require("../libs/tokenLib");
 const passwordLib = require("../libs/passwordLib");
 const responseLib = require("../libs/responseLib");
 const checkLib = require("../libs/checkLib");
-const common = require("../controller/common")
 
 
 // Login
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const userDetails = await userModerl.findOne({email});
+    const userDetails = await userModel.findOne({email});
     if(checkLib.isEmpty(userDetails)){
       const apiResponse = responseLib.generate(false,"email not registered",{});
       return res.staus(200).send(apiResponse);
@@ -45,7 +44,7 @@ const register = async (req, res) => {
       return res.status(200).send(apiResponse);
     }
 
-    const userId = await common.generateRandomId();
+    const userId = generateRandomId();
     let newUser = new userModel({
       userId: userId,
       name: name,
