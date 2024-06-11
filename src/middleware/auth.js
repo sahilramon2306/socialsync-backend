@@ -23,31 +23,8 @@ let isAuthorized=async(req,res,next)=>{
     }
 }
 
-// Checking for admin access
 
-let isAdmin=async(req,res,next) => {
-    if(req.user.role==='admin'){
-        next()
-    }else{
-        let apiResponse=responseLib.generate(false,'You are not authorized to perform this action',null)
-        res.status(403).send(apiResponse)
-    }
-}
-
-// Checking for author access
-let isAuthor=(req, res,next) =>{
-    const articleId=req.params.id;
-    const article = Article.Post.findById(articleId);
-    if(article.author==req.user._id) {
-        next()
-    }else{
-        let apiResponse=responseLib.generate(false,'You are not authorized to perform this action',null)
-        res.status(403).send(apiResponse)
-    }
-}
 
 module.exports={
-    isAuthorized:isAuthorized,
-    isAdmin:isAdmin,
-    isAuthor:isAuthor
+    isAuthorized:isAuthorized
 }

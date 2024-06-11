@@ -37,28 +37,51 @@ const login = async (req, res) => {
 //Registration
 const register = async (req, res) => {
   try {
-    const {name,email,password,address} = req.body;
-    const isUserExist = await userModerl.findOne({email});
-    if(isUserExist){
-      const apiResponse = responseLib.generate(false,"This email is already registered",{});
+    const { name, email, password, address } = req.body;
+    const isUserExist = await userModel.findOne({ email });
+
+    if (isUserExist) {
+      const apiResponse = responseLib.generate(false, "This email is already registered", {});
       return res.status(200).send(apiResponse);
     }
+
     const userId = await common.generateRandomId();
-    let newUser = new userModerl({
-      userId:userId,
-      name:name,
+    let newUser = new userModel({
+      userId: userId,
+      name: name,
       password: await passwordLib.hash(password),
-      email:email,
-      address : address
+      email: email,
+      address: address
     });
+
     await newUser.save();
-    const apiResponse = {success:true,message:"User Registered Success",userId};
+
+    // Prepare the data to send to the services
+    const userData = {
+      userId,
+      name,
+      email,
+      address
+    };
+
+    // Define the service URLs
+    const service1Url = 'https://render-server-1oni.onrender.com/register';
+    const service2Url = 'http://65.2.177.95:5001/register';
+
+    // Make the axios calls
+    const service1Request = axios.post(service1Url, userData);
+    const service2Request = axios.post(service2Url, userData);
+
+    await Promise.all([service1Request, service2Request]);
+
+    const apiResponse = { success: true, message: "User Registered Successfully", userId };
     res.status(200).send(apiResponse);
   } catch (err) {
-    const apiResponse = responseLib.generate(true, err.message, null);
-    res.send(apiResponse);
+    const apiResponse = responseLib.generate(false, err.message, null);
+    res.status(500).send(apiResponse);
   }
 };
+
 
 
 
