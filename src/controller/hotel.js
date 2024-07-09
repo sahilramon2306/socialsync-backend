@@ -21,12 +21,22 @@ const addHotel = async (req, res) => {
     const hotelData = { hotelId, hotelName, rating, price };
     
     const service1Url = 'https://render-server-1oni.onrender.com/add-hotel';
-    const service2Url = 'http://65.2.177.95:5001/add-hotel';
+    const service2Url = 'http://13.127.17.195:5001/add-hotel';
+    try {
+      const service1Response = await axios.post(service1Url,hotelData);
+      console.log("Render server response:", service1Response.data);
+    } catch (err) {
+      console.error("Error with render server:", err.message);
+    }
 
-    const service1Request = axios.post(service1Url, hotelData);
-    const service2Request = axios.post(service2Url, hotelData);
+    try {
+      const service2Response = await axios.post(service2Url,hotelData);
+      console.log("AWS server response:", service2Response.data);
+    } catch (err) {
+      console.error("Error with AWS server:", err.message);
+    }
 
-    await Promise.all([service1Request, service2Request]);
+   // await Promise.all([service1Request, service2Request]);
 
     const apiResponse = responseLib.generate(true, "Hotel added successfully", {});
     res.status(200).send(apiResponse);
@@ -46,7 +56,7 @@ const bookHotel = async (req, res) => {
     let message;
     let bookingId = "";
 
-    if (!checkLib.isEmpty(hotel)) {
+    if (hotel) {
       hotel.isAvailable = false;
       await hotel.save();
 
@@ -75,19 +85,28 @@ const bookHotel = async (req, res) => {
 
        // Making axios calls to the two services[ render-server and aws-server ]
       const service1Url = 'https://render-server-1oni.onrender.com/book-hotel';
-      const service2Url = 'http://65.2.177.95:5001/book-hotel';
+      const service2Url = 'http://13.127.17.195:5001/book-hotel';
 
       // Make the axios calls
-      const service1Request = axios.post(service1Url, bookingData);
-      const service2Request = axios.post(service2Url, bookingData);
-
-      await Promise.all([service1Request, service2Request]);
+      try {
+        const service1Response = await axios.post(service1Url);
+        console.log("Render server response:", service1Response.data);
+      } catch (err) {
+        console.error("Error with render server:", err.message);
+      }
+  
+      try {
+        const service2Response = await axios.post(service2Url);
+        console.log("AWS server response:", service2Response.data);
+      } catch (err) {
+        console.error("Error with AWS server:", err.message);
+      }
+      //await Promise.all([service1Request, service2Request]);
 
     } else {
       message = "Hotel not available";
       data = {};
     }
-
     const apiResponse = { success: true, message, bookingId };
     res.status(200).send(apiResponse);
   } catch (err) {
@@ -99,16 +118,22 @@ const bookHotel = async (req, res) => {
 // Get all the available hotels
 const getAvailableHotels = async (req, res) => {
   try {
-    const response = await axios.get('https://my-blog-sntj.onrender.com/get-hotel');
+    const response = await axios.get('https://render-server-1oni.onrender.com/get-hotel');
+    console.log("response:", response);
     const hotels = response.data.hotels;
+
     const message = hotels.length > 0 ? "Available hotels are following" : "No hotel available";
     const apiResponse = { success: true, message, hotels };
+    
     res.status(200).send(apiResponse);
   } catch (error) {
-    const apiResponse = responseLib.generate(false, error.message, {});
+    console.error("Error fetching hotels:", error.message);
+    const apiResponse = { success: false, message: error.message, hotels: [] };
     res.status(500).send(apiResponse);
   }
 };
+
+
 
 function generateRandomId() {
   let min = 10000; // minimum value (inclusive)

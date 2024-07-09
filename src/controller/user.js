@@ -4,6 +4,7 @@ const tokenLib = require("../libs/tokenLib");
 const passwordLib = require("../libs/passwordLib");
 const responseLib = require("../libs/responseLib");
 const checkLib = require("../libs/checkLib");
+const axios = require('axios');
 
 
 // Login
@@ -11,9 +12,9 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const userDetails = await userModel.findOne({email});
-    if(checkLib.isEmpty(userDetails)){
+    if(!userDetails){
       const apiResponse = responseLib.generate(false,"email not registered",{});
-      return res.staus(200).send(apiResponse);
+      return res.status(200).send(apiResponse);
     }
     if (await passwordLib.verify(password,userDetails.password)) {
       console.log("Verified");
@@ -28,7 +29,7 @@ const login = async (req, res) => {
       res.status(200).send(apiResponse);
     }
   } catch (err) {
-    const apiResponse =await responseLib.generate(false, err.message, {});
+    const apiResponse = responseLib.generate(false, err.message, {});
     res.status(500).send(apiResponse);
   }
 };
@@ -38,7 +39,7 @@ const register = async (req, res) => {
   try {
     const { name, email, password, address } = req.body;
     const isUserExist = await userModel.findOne({ email });
-
+    let hashedPassword = await passwordLib.hash(password);
     if (isUserExist) {
       const apiResponse = responseLib.generate(false, "This email is already registered", {});
       return res.status(200).send(apiResponse);
@@ -48,7 +49,7 @@ const register = async (req, res) => {
     let newUser = new userModel({
       userId: userId,
       name: name,
-      password: await passwordLib.hash(password),
+      password:hashedPassword,
       email: email,
       address: address
     });
@@ -59,19 +60,28 @@ const register = async (req, res) => {
     const userData = {
       userId,
       name,
+      password:hashedPassword,
       email,
       address
     };
 
     // Define the service URLs
     const service1Url = 'https://render-server-1oni.onrender.com/register';
-    const service2Url = 'http://65.2.177.95:5001/register';
+    const service2Url = 'http://13.127.17.195:5001/register';
 
-    // Make the axios calls
-    const service1Request = axios.post(service1Url, userData);
-    const service2Request = axios.post(service2Url, userData);
+    try {
+      const service1Response = await axios.post(service1Url, userData);
+      console.log("Render server response:", service1Response.data);
+    } catch (err) {
+      console.error("Error with render server:", err.message);
+    }
 
-    await Promise.all([service1Request, service2Request]);
+    try {
+      const service2Response = await axios.post(service2Url, userData);
+      console.log("AWS server response:", service2Response.data);
+    } catch (err) {
+      console.error("Error with AWS server:", err.message);
+    }
 
     const apiResponse = { success: true, message: "User Registered Successfully", userId };
     res.status(200).send(apiResponse);
@@ -82,6 +92,15 @@ const register = async (req, res) => {
 };
 
 
+function generateRandomId() {
+  let min = 10000; // minimum value (inclusive)
+  let max = 99999; // maximum value (inclusive)
+
+  // Generate a random number between min and max
+  let randomId = Math.floor(Math.random() * (max - min + 1)) + min;
+
+  return randomId;
+}
 
 
 module.exports = {

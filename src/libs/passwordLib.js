@@ -1,5 +1,4 @@
 const crypto=require('crypto')
-
 // hash creation functions
 const hash=async(password)=>{
         return new Promise((resolve,reject)=>{
@@ -11,7 +10,6 @@ const hash=async(password)=>{
             resolve(salt+":"+derivedKey.toString('hex'))
         })
     })
-
 }
 
 // password verification function

@@ -7,7 +7,7 @@ const check=require('../libs/checkLib');
 // Check the user is authenticated or not.
 let isAuthorized=async(req,res,next)=>{
     try{
-        if(req.header('token')&& !check.isEmpty(req.header('token')))
+        if(req.header('token'))
         {
             let decoded=await token.verifyClaimWithoutSecret(req.header('token'));
             req.user=decoded.data;
