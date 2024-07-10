@@ -119,10 +119,10 @@ const bookHotel = async (req, res) => {
 const getAvailableHotels = async (req, res) => {
   try {
     const response = await axios.get('https://render-server-1oni.onrender.com/get-hotel');
-    console.log("response:", response);
+    console.log("response:------->", response.data.hotels);
     const hotels = response.data.hotels;
 
-    const message = hotels.length > 0 ? "Available hotels are following" : "No hotel available";
+    const message = response.data.message;
     const apiResponse = { success: true, message, hotels };
     
     res.status(200).send(apiResponse);
