@@ -15,15 +15,14 @@ let userHotelMappingSchema = new Schema({
     required: true
   },
   bookingDate: {
-    type: Date,
-    default: Date.now
+    type: String,
   },
   checkIn: {
-    type: Date,
+    type:String,
     required: true
   },
   checkOut: {
-    type: Date,
+    type: String,
     required: true
   },
   guests: {

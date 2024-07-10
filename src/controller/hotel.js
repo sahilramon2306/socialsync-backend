@@ -53,6 +53,7 @@ const bookHotel = async (req, res) => {
   try {
     const { userId, hotelId, checkIn, checkOut, guests } = req.body;
     const hotel = await hotelModel.findOne({ hotelId, isAvailable: true });
+    console.log("hotel", hotel)
     let message;
     let bookingId = "";
 
@@ -60,7 +61,7 @@ const bookHotel = async (req, res) => {
       hotel.isAvailable = false;
       await hotel.save();
 
-      bookingId = common.generateRandomId();
+      bookingId = generateRandomId();
       const userHotelMapping = new userHotelMappingModel({
         bookingId,
         userId,
@@ -84,20 +85,21 @@ const bookHotel = async (req, res) => {
       };
 
        // Making axios calls to the two services[ render-server and aws-server ]
-      const service1Url = 'https://render-server-1oni.onrender.com/book-hotel';
+     // const service1Url = 'https://render-server-1oni.onrender.com/book-hotel';
       const service2Url = 'http://13.127.17.195:5001/book-hotel';
 
       // Make the axios calls
-      try {
-        const service1Response = await axios.post(service1Url);
-        console.log("Render server response:", service1Response.data);
-      } catch (err) {
-        console.error("Error with render server:", err.message);
-      }
+      // try {
+      //   const service1Response = await axios.post(service1Url);
+      //   console.log("Render server response:", service1Response.data);
+      // } catch (err) {
+      //   console.error("Error with render server:", err.message);
+      // }
   
       try {
-        const service2Response = await axios.post(service2Url);
+        const service2Response = await axios.post(service2Url,bookingData);
         console.log("AWS server response:", service2Response.data);
+        message = service2Response.message;
       } catch (err) {
         console.error("Error with AWS server:", err.message);
       }
@@ -106,6 +108,7 @@ const bookHotel = async (req, res) => {
     } else {
       message = "Hotel not available";
       data = {};
+      return res.status(200).send({success: true, message: message,data:[]})
     }
     const apiResponse = { success: true, message, bookingId };
     res.status(200).send(apiResponse);
