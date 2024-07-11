@@ -83,10 +83,7 @@ const bookHotel = async (req, res) => {
 
        // Making axios calls to the two services[ render-server and aws-server ]
      // const service1Url = 'https://render-server-1oni.onrender.com/book-hotel';
-      //const service2Url = 'http://13.127.17.195:5001/book-hotel';
-      const service2Url = 'localhost:5001/book-hotel';
-
-
+      const service2Url = 'http://13.127.17.195:5001/book-hotel'
       // Make the axios calls
       // try {
       //   const service1Response = await axios.post(service1Url);
