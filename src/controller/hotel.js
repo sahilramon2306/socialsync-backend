@@ -52,15 +52,12 @@ const addHotel = async (req, res) => {
 const bookHotel = async (req, res) => {
   try {
     const { userId, hotelId, checkIn, checkOut, guests } = req.body;
-    const hotel = await hotelModel.findOne({ hotelId, isAvailable: true });
-    console.log("hotel", hotel)
+    const hotel = await hotelModel.find({ hotelId, isAvailable: true });
+    console.log("hotel ---->", hotel)
     let message;
     let bookingId = "";
 
     if (hotel) {
-      hotel.isAvailable = false;
-      await hotel.save();
-
       bookingId = generateRandomId();
       const userHotelMapping = new userHotelMappingModel({
         bookingId,
@@ -86,7 +83,9 @@ const bookHotel = async (req, res) => {
 
        // Making axios calls to the two services[ render-server and aws-server ]
      // const service1Url = 'https://render-server-1oni.onrender.com/book-hotel';
-      const service2Url = 'http://13.127.17.195:5001/book-hotel';
+      //const service2Url = 'http://13.127.17.195:5001/book-hotel';
+      const service2Url = 'localhost:5001/book-hotel';
+
 
       // Make the axios calls
       // try {
@@ -100,6 +99,8 @@ const bookHotel = async (req, res) => {
         const service2Response = await axios.post(service2Url,bookingData);
         console.log("AWS server response:", service2Response.data);
         message = service2Response.message;
+        hotel.isAvailable = false;
+        await hotel.save();
       } catch (err) {
         console.error("Error with AWS server:", err.message);
       }
