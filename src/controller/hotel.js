@@ -21,7 +21,7 @@ const addHotel = async (req, res) => {
     const hotelData = { hotelId, hotelName, rating, price };
     
     const service1Url = 'https://render-server-1oni.onrender.com/add-hotel';
-    const service2Url = 'http://13.127.17.195:5001/add-hotel';
+    const service2Url = 'http://52.66.149.80:5001/add-hotel';
     try {
       const service1Response = await axios.post(service1Url,hotelData);
       console.log("Render server response:", service1Response.data);
@@ -83,7 +83,7 @@ const bookHotel = async (req, res) => {
 
        // Making axios calls to the two services[ render-server and aws-server ]
      // const service1Url = 'https://render-server-1oni.onrender.com/book-hotel';
-      const service2Url = 'http://13.127.17.195:5001/book-hotel'
+      const service2Url = 'http://52.66.149.80:5001/book-hotel'
       // Make the axios calls
       // try {
       //   const service1Response = await axios.post(service1Url);
