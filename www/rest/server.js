@@ -1,7 +1,7 @@
-const http = require('http'); // Node.js module for creating server
+const http = require('http'); 
 
 const startServer = (app) => {
-    const server = http.createServer(app); // Creating server with the help of http and express
+    const server = http.createServer(app); 
     
     const PORT = process.env.REST_PORT || 5000;
     server.listen(PORT);

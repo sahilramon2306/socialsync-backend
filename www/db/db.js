@@ -5,8 +5,7 @@ const mongoose=require('mongoose');
 const server=require('../rest/server');
 
 const startDB=(app)=>{
-   // console.log(`Environment : ${mode} Database : ${process.env.DATABASE_TYPE}`)
-    try{
+      try{
         mongoose.connect(process.env.MONGO_URL);
         mongoose.connection.on('error',(err)=>{
             console.log(`database error :${err}`)

@@ -1,30 +1,21 @@
-const responseLib=require('../libs/responseLib');
-const token=require('../libs/tokenLib');
-const check=require('../libs/checkLib');
+const jwt = require("jsonwebtoken");
 
-
-
-// Check the user is authenticated or not.
-let isAuthorized=async(req,res,next)=>{
-    try{
-        if(req.header('token'))
-        {
-            let decoded=await token.verifyClaimWithoutSecret(req.header('token'));
-            req.user=decoded.data;
-            next()
-        }
-        else{
-            let apiResponse=responseLib.generate(false,'Authorization Is Missing in Request',{})
-            res.status(403).send(apiResponse)
-        }
-    }catch(err){
-        let apiResponse=responseLib.generate(false,err.message,null)
-        res.status(403).send(apiResponse)
+const isAuthenticate = (req, res, next) => {
+    const token = req.headers.authorization?.split(" ")[1]; 
+    if (!token) {
+        return res.status(401).json({ success: false, message: "Access denied. No token provided." });
     }
-}
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log("toked decoded", decoded);
+        
+        req.user = decoded; 
+        next();
+    } catch (error) {
+        return res.status(403).json({ success: false, message: "Invalid or expired token." });
+    }
+};
 
-
-
-module.exports={
-    isAuthorized:isAuthorized
+module.exports = {
+    isAuthenticate:isAuthenticate
 }
